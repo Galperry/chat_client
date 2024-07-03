@@ -1,0 +1,96 @@
+.chat-page {
+    height: 100%;
+    width: 100%;
+
+    .chat-wrapper{
+        display:flex;
+        height:100%;
+        .sidebar {
+            display:flex;
+            background-color: rgb(150, 137, 143);
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 30%;
+            text-align: center;
+            h5{
+                padding: 10px;
+            }
+            .actions-container{
+                padding: 10px;
+            }
+            .list-group{
+                margin: 0px 10px;
+                li{
+                    &:hover {
+                        &:not(.active){
+                            background-color: rgb(237, 222, 229);
+                        }
+                        cursor:pointer;
+                    }
+                    &.active {
+                        background-color: rgb(123, 69, 117);
+                        border-color:  rgb(98, 42, 91);
+                    }
+    
+                }
+            }
+            
+        }
+        .main-content {
+            flex: 70%;
+            .no-room-selected{
+                display:flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                padding: 30px;
+                text-align: center;
+                background-color: rgb(224, 204, 240);
+            }
+
+            .chat-content {
+                background-color: rgb(88, 78, 81);
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                .conversation-container {
+                    flex:80%;
+                    background-color: yellow;
+                    
+                }
+                .send-msg-container{
+                    flex: 20%;
+                    display:flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 10px;
+                    gap: 10px;
+                    textarea{
+                        height:90%;
+                        flex: 80%;
+                        border-radius: 10px;
+                        padding-left:12px;
+                        resize: none;
+                    }
+
+                }
+                
+            }
+        }
+    }
+}
+
+
+.login-page {
+    background-color: rgb(224, 224, 243);
+    height: 100%;
+    padding: 20px;
+    text-align: center;
+    h3 {
+        color:rgb(29, 31, 93);
+    }
+
+    .btn-close{
+        float: right;
+    }
+}
