@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewMessage, getRoomMessages, readMessages } from '../actions';
 import { MessageCard } from './MessageCard';
@@ -8,6 +8,7 @@ export const ChatContent = ({ roomId }) => {
   const dispatch = useDispatch();
 
   const [myMsg, setMyMsg] = useState('');
+  const [emitMsg, setEmitMsg] = useState(true);
 
   const socket = useMemo(() => io('ws://localhost:8080'), []);
 
@@ -15,6 +16,25 @@ export const ChatContent = ({ roomId }) => {
     useSelector((state) => state.user.userId) ||
     sessionStorage.getItem('userId');
   const roomMessages = useSelector((state) => state.room.messages[roomId]);
+
+  const onVisibilityChange = () => {
+    if (!document.hidden && emitMsg) {
+      console.log('emitting now');
+      socket.emit('readMessages', {
+        lastTimestamp: Date.now(),
+        roomId,
+        userId,
+      });
+      setEmitMsg(false);
+    }
+  };
+
+  useLayoutEffect(() => {
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () =>
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, []);
 
   useEffect(() => {
     socket.emit('getMessages', roomId);
@@ -27,11 +47,15 @@ export const ChatContent = ({ roomId }) => {
       console.log('Add Message from server', data);
       dispatch(addNewMessage(data));
       if (data.userId !== userId) {
-        socket.emit('readMessages', {
-          lastTimestamp: data.timestamp,
-          roomId,
-          userId,
-        });
+        if (document.hidden) {
+          setEmitMsg(true);
+        } else {
+          socket.emit('readMessages', {
+            lastTimestamp: data.timestamp,
+            roomId,
+            userId,
+          });
+        }
       }
     });
     socket.on('getMessages', (data) => {
@@ -46,7 +70,6 @@ export const ChatContent = ({ roomId }) => {
       }
     });
     socket.on('readMessages', (resObj) => {
-      console.log('reading on client now', resObj);
       const readingUser = resObj.readingUser;
       if (readingUser !== userId) {
         dispatch(
