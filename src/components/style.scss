@@ -55,7 +55,42 @@
                 flex-direction: column;
                 .conversation-container {
                     flex:80%;
-                    background-color: yellow;
+                    background-color:rgb(85, 50, 61);
+                    overflow-y: scroll;
+
+                    .msg-card{
+                        background-color: rgb(251, 251, 251);
+                        margin: 3px;
+                        padding: 2px 5px;
+                        border-radius: 3px;
+                        min-width: 50%;
+                        max-width: 80%;
+
+                        .msg-details {
+                            display: flex;
+                            justify-content: space-between;
+                            .sent-by{
+                                font-weight: 700;
+                            }
+                            .msg-date{
+                                font-weight: 300;
+                            }
+                        }
+                        .message-content {
+                            display: flex;
+                            justify-content: space-between;
+                            svg {
+                                width: 15px;
+                                height: 15px;
+                            }
+                        }
+                        &.my-msg {
+                            background-color: #E2FDD4;
+                            margin-left: auto; 
+                            margin-right: 0;
+                        }
+                        
+                    }
                     
                 }
                 .send-msg-container{

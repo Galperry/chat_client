@@ -7,6 +7,9 @@ import {
   GET_ROOM_LIST,
   SELECT_ROOM,
   GET_USER_LIST,
+  GET_ROOM_MESSAGES,
+  ADD_NEW_MESSAGE,
+  READ_MESSAGES,
 } from '../constants/action-types';
 import { config } from '../configuration';
 
@@ -40,7 +43,6 @@ export const clearLoginError = () => ({
 
 export const getUserList = () => (dispatch) => {
   axios.get(config.URL.USERS.GET_USER_LIST).then((response) => {
-    console.log(response);
     if (response.data.isSucceed) {
       dispatch({
         type: GET_USER_LIST,
@@ -68,4 +70,19 @@ export const getRoomList = () => (dispatch) => {
 export const selectRoom = (selectedId) => ({
   type: SELECT_ROOM,
   payload: { selectedId },
+});
+
+export const getRoomMessages = (roomId, messageList) => ({
+  type: GET_ROOM_MESSAGES,
+  payload: { messages: messageList, roomId },
+});
+
+export const readMessages = (readObj) => ({
+  type: READ_MESSAGES,
+  payload: readObj,
+});
+
+export const addNewMessage = (newMessage) => ({
+  type: ADD_NEW_MESSAGE,
+  payload: { newMessage },
 });

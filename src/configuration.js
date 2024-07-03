@@ -18,6 +18,7 @@ export const config = {
     },
     ROOMS: {
       GET_ROOM_LIST: getFullUrlPath('room/roomList'),
+      GET_ROOM_MESSAGES: getFullUrlPath('room/getRoomMessages'),
     },
   },
 };

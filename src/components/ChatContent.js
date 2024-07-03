@@ -1,28 +1,78 @@
 import { io } from 'socket.io-client';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { addNewMessage, getRoomMessages, readMessages } from '../actions';
+import { MessageCard } from './MessageCard';
 
 export const ChatContent = ({ roomId }) => {
   const dispatch = useDispatch();
+
   const [myMsg, setMyMsg] = useState('');
-  const userId =
-    useSelector((state) => state.user.userId) ||
-    sessionStorage.getItem('userId');
 
   const socket = useMemo(() => io('ws://localhost:8080'), []);
 
-  //   useEffect(() => {
-  //     dispatch();
-  //   }, []);
+  const userId =
+    useSelector((state) => state.user.userId) ||
+    sessionStorage.getItem('userId');
+  const roomMessages = useSelector((state) => state.room.messages[roomId]);
+
+  useEffect(() => {
+    socket.emit('getMessages', roomId);
+
+    return setMyMsg('');
+  }, [dispatch, socket, roomId]);
 
   useEffect(() => {
     socket.on('message', (data) => {
-      console.log('Message from server', data);
+      console.log('Add Message from server', data);
+      dispatch(addNewMessage(data));
+      if (data.userId !== userId) {
+        socket.emit('readMessages', {
+          lastTimestamp: data.timestamp,
+          roomId,
+          userId,
+        });
+      }
     });
-  }, [socket]);
+    socket.on('getMessages', (data) => {
+      if (data.isSucceed) {
+        const messages = data.messages;
+        dispatch(getRoomMessages(roomId, messages));
+        socket.emit('readMessages', {
+          lastTimestamp: messages[messages.length - 1].timestamp,
+          roomId,
+          userId,
+        });
+      }
+    });
+    socket.on('readMessages', (resObj) => {
+      console.log('reading on client now', resObj);
+      const readingUser = resObj.readingUser;
+      if (readingUser !== userId) {
+        dispatch(
+          readMessages({
+            lastTimestamp: resObj.lastTimestamp,
+            readingUser,
+            roomId,
+          })
+        );
+      }
+    });
+
+    return () => {
+      socket.off('message');
+      socket.off('getMessages');
+    };
+  }, [socket, roomId, dispatch, userId]);
+
+  useEffect(() => {
+    const conversationContainer = document.getElementById('conv');
+    conversationContainer.scrollTo(0, conversationContainer.scrollHeight);
+  }, [roomMessages]);
 
   const sendMsg = () => {
     socket.emit('message', { content: myMsg, userId, roomId });
+    setMyMsg('');
   };
 
   const changeMsg = (e) => {
@@ -31,7 +81,21 @@ export const ChatContent = ({ roomId }) => {
 
   return (
     <div className="chat-content">
-      <div className="conversation-container"></div>
+      <div id="conv" className="conversation-container">
+        {roomMessages?.length ? (
+          <div>
+            {roomMessages.map((message) => (
+              <MessageCard
+                key={message._id}
+                message={message}
+                currentUser={userId}
+              />
+            ))}
+          </div>
+        ) : (
+          <div>Write a message and start a conversation</div>
+        )}
+      </div>
       <div className="send-msg-container">
         <textarea onInput={changeMsg} value={myMsg} />
         <button
