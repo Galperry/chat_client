@@ -91,6 +91,16 @@
                         }
                         
                     }
+
+                    .empty-conv{
+                        display:flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100%;
+                        padding: 30px;
+                        text-align: center;
+                        color: rgb(224, 204, 240);
+                    }
                     
                 }
                 .send-msg-container{

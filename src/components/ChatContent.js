@@ -44,7 +44,6 @@ export const ChatContent = ({ roomId }) => {
 
   useEffect(() => {
     socket.on('message', (data) => {
-      console.log('Add Message from server', data);
       dispatch(addNewMessage(data));
       if (data.userId !== userId) {
         if (document.hidden) {
@@ -62,11 +61,13 @@ export const ChatContent = ({ roomId }) => {
       if (data.isSucceed) {
         const messages = data.messages;
         dispatch(getRoomMessages(roomId, messages));
-        socket.emit('readMessages', {
-          lastTimestamp: messages[messages.length - 1].timestamp,
-          roomId,
-          userId,
-        });
+        if (messages.length) {
+          socket.emit('readMessages', {
+            lastTimestamp: messages[messages.length - 1].timestamp,
+            roomId,
+            userId,
+          });
+        }
       }
     });
     socket.on('readMessages', (resObj) => {
@@ -116,7 +117,9 @@ export const ChatContent = ({ roomId }) => {
             ))}
           </div>
         ) : (
-          <div>Write a message and start a conversation</div>
+          <div className="empty-conv">
+            Write a message and start a conversation
+          </div>
         )}
       </div>
       <div className="send-msg-container">
