@@ -56,7 +56,7 @@
                 .conversation-container {
                     flex:80%;
                     background-color:rgb(85, 50, 61);
-                    overflow-y: scroll;
+                    overflow-y: auto;
 
                     .msg-card{
                         background-color: rgb(251, 251, 251);
