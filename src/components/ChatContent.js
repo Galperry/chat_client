@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewMessage, getRoomMessages, readMessages } from '../actions';
 import { MessageCard } from './MessageCard';
@@ -8,7 +8,7 @@ export const ChatContent = ({ roomId }) => {
   const dispatch = useDispatch();
 
   const [myMsg, setMyMsg] = useState('');
-  const [emitMsg, setEmitMsg] = useState(true);
+  const [emitMsg, setEmitMsg] = useState(false);
 
   const socket = useMemo(() => io('ws://localhost:8080'), []);
 
@@ -17,7 +17,7 @@ export const ChatContent = ({ roomId }) => {
     sessionStorage.getItem('userId');
   const roomMessages = useSelector((state) => state.room.messages[roomId]);
 
-  const onVisibilityChange = () => {
+  const onVisibilityChange = useCallback(() => {
     if (!document.hidden && emitMsg) {
       console.log('emitting now');
       socket.emit('readMessages', {
@@ -27,20 +27,20 @@ export const ChatContent = ({ roomId }) => {
       });
       setEmitMsg(false);
     }
-  };
+  }, [emitMsg, roomId, userId, socket]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () =>
       document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, []);
+  }, [onVisibilityChange]);
 
   useEffect(() => {
-    socket.emit('getMessages', roomId);
+    socket.emit('getMessages', roomId, userId);
 
     return setMyMsg('');
-  }, [dispatch, socket, roomId]);
+  }, [dispatch, socket, roomId, userId]);
 
   useEffect(() => {
     socket.on('message', (data) => {
@@ -60,6 +60,9 @@ export const ChatContent = ({ roomId }) => {
     socket.on('getMessages', (data) => {
       if (data.isSucceed) {
         const messages = data.messages;
+        if (data.userId !== userId) {
+          return;
+        }
         dispatch(getRoomMessages(roomId, messages));
         if (messages.length) {
           socket.emit('readMessages', {
