@@ -44,6 +44,9 @@ export const ChatContent = ({ roomId }) => {
 
   useEffect(() => {
     socket.on('message', (data) => {
+      if (data.roomId !== roomId) {
+        return;
+      }
       dispatch(addNewMessage(data));
       if (data.userId !== userId) {
         if (document.hidden) {
