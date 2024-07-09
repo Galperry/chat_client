@@ -53,6 +53,7 @@ export const roomReducer = (state = initialState, action) => {
       const lastTimestamp = action.payload.lastTimestamp;
 
       const newList = { ...state.messages }[roomId].map((message) => {
+        if (message.isRead) return message;
         const newMsg = { ...message };
         if (
           message.userId !== readingUser &&
