@@ -3,9 +3,8 @@ import { logoutUser, getRoomList } from '../actions';
 import { useEffect } from 'react';
 import { RoomCard } from './RoomCard';
 
-export const Sidebar = () => {
+export const Sidebar = ({ selectedRoom }) => {
   const rooms = useSelector((state) => state.room.roomList);
-  const selectedRoom = useSelector((state) => state.room.selectedRoom);
 
   const dispatch = useDispatch();
 

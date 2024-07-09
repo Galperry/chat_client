@@ -19,7 +19,7 @@ export const ChatPage = () => {
   return (
     <div className="chat-page">
       <div className="chat-wrapper">
-        <Sidebar />
+        <Sidebar selectedRoom={selectedRoom} />
         <div className="main-content">
           {selectedRoom ? (
             <ChatContent roomId={selectedRoom} />
